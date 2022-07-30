@@ -1,0 +1,102 @@
+---
+title: "Sesión 1. Básicos"
+author: "Isaías Morales"
+date: "27 de noviembre de 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(include = T)
+
+```
+
+# Variable
+
+> Resultado de una medición.
+
+```{r inicio2}
+10 # Valor NO asignado a una variable
+
+robos <- 10 # Se asigna el valor 10 a v
+print(robos) # Se imprime el valor de v
+```
+
+
+# Tipos de datos 
+
+> character (cadenas de caracteres)
+
+```{r inicio9}
+v <- "Letra" # Se asigna el valor 10 a v
+print(v) # Se imprime el valor de v
+class(v) # Muestra cuál es la clase de v
+```
+
+> numeric (números reales)
+
+```{r inicio3}
+
+b <- 25 # Se asigna el valor de 25 (lo toma como real)
+class(b) # Ver la clase de b
+```
+
+> # integer (números enteros)
+
+```{r inicio}
+
+c <- 25L  # Se asignna el 25 pero como entero
+class(c)  # Se guarda como entero
+d <- as.integer(b)  # Pero también se puede convertir
+class(d)
+
+```
+
+> complex (números complejos)
+
+```{r inicio4}
+
+x <- 21 + 2i # Números complejos o imaginarios
+class(x)
+
+```
+
+> logical (lógicos o booleanos, que sólo toman los valores True o False)
+
+```{r inicio5}
+
+y <- is.na(x)
+print(y)
+class(y)
+
+```
+
+
+> Operaciones con variables.
+
+```{r inicio6}
+homicidios <- 15 
+formato <- "IPH"
+homicidios + robos
+  # homicidios + "IPH"
+paste(homicidios, "con", formato)
+paste("homicidios", "con", formato)
+
+```
+
+
+> Factor (Niveles de una variable )
+
+```{r inicio7}
+meses <- c("Ene","Feb","Mar","Abr","May","Jun","Jul","Ago",
+"Sep","Oct","Nov","Dic")
+
+meses <- as.factor(meses)
+levels(meses)
+
+# Hacer una tabla con factores
+meses <- c("Ene","Feb","Mar","Abr","May","Jun","Jul","Ago",
+"Sep","Oct","Nov","Dic","Mar","Abr", "Dic")
+meses <- as.factor(meses)
+table(meses)
+
+```

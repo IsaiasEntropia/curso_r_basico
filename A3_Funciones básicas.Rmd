@@ -1,0 +1,115 @@
+---
+title: "Sesión 3. Funciones Básicas"
+author: "Isaías Morales"
+date: "27 de noviembre de 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(include = T)
+
+```
+
+# Decisión
+
+> La decisión se establece como:
+> Si (establecimiento de condición) { resultado si es verdad} { resultado si es falso}
+
+```{r if uno}
+
+if ( 12 == 10) { print("Verdad")} else
+    {print("Falso")}
+
+```
+
+```{r if dos}
+
+sexo <- "h"
+sexo
+
+if ( sexo == "m") { print("Mujer")} else
+    {print("Hombre")}
+
+```
+
+# Decisión
+
+> La decisión se establece como:
+> Si (establecimiento de condición) { resultado si es verdad} { resultado si es falso}
+
+```{r ifelse}
+# En caso de vectores
+
+Sexo <- c("h","m","h","m","h","m","h","h","m","h")  # Se crea vector de valores
+
+# Prueba
+ifelse ( Sexo == "m", "Mujer", "Hombre") 
+
+```
+
+# Decisión
+> Loops. Bucles.
+
+```{r for}
+# En caso de vectores
+
+Sexo <- c("uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho")  # Se crea vector de valores
+
+## Para i entre 1 hasta tal #. Hacer algo.
+# En el ejemplo, imprime de la i sumando 2. Empieza en la ubicación  3 del vector.
+
+for (i in 1:length(Sexo) ) {
+    print ( Sexo[i+2] )
+}
+```
+
+```{r for ejemplo}
+# En caso de vectores
+
+Sexo <- 1:10
+
+## Para i entre 1 hasta tal #. Hacer algo.
+# En el ejemplo, imprime de la i sumando 2. Empieza en la ubicación  3 del vector.
+
+for (i in 1:length(Sexo) ) {
+    print ( Sexo[i+2] )
+}
+```
+
+
+# Lapply / Sapply / Tapply
+> Funciones simplificadas.
+
+```{r lapply}
+# La función apply nos permite aplicar una función a una matriz, lista o vector que se le pase cómo parámetro.
+
+# Construir una matriz.
+
+Colonia <- c("San Pablo", "Carrillo", "Los Sauces", "No indica")
+Evento <- c( "Robo a Casa", "Robo a Negocio", "Homicidio")
+# Dimensión de la matriz son columnas eventos (3) y Colonias (4) es una matriz 3 x 4
+
+ejemplo <- c(1:12)
+m <- matrix(ejemplo, nrow = 4, ncol = 3, byrow = TRUE) 
+rownames(m) <- Colonia
+colnames(m) <- Evento
+
+# Ver la matriz 
+m
+
+# Se aplicala función apply
+apply(m, 1, sum) # Aplica sobre filas
+apply(m, 2, sum) # Aplica sobre Columnas
+
+# lapply:  Se diferencia con apply en que opera con listas. Recibe una lista y devuelve una lista
+mlist <- list(m)
+
+lapply(mlist, sum) # Aplica función sobre elementos de lista
+
+###  Sapply: Se diferencia con apply en que opera con listas. Recibe una lista y devuelve un vector. Es la versión simple de lapply.
+
+sapply(mlist, sum) # Aplica función sobre elementos de lista
+
+```
+
+

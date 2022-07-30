@@ -1,0 +1,111 @@
+---
+title: "Sesión 5. Lectura de archivos"
+author: "Isaías Morales"
+date: "27 de noviembre de 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+#knitr::opts_chunk$set(include = T)
+knitr::opts_knit$set(root.dir = "E:/10 SSPM_database/02 Código/ejeRcicios")
+library(leaflet)
+library(dplyr)
+
+```
+
+# Cargar librerías
+
+> Se sugiere al inicio cargar todas las librerías que van a ser necesarias.
+
+
+# Establecer ruta
+
+> Se indica dónde tenemos guardados los archivos. Al copiarlos el slash es invertiodo () Se debe cambiar por el normal /. C:/documento NO C:/documento
+
+```{r Librerías para lectura}
+# setwd("E:/10 SSPM_database/02 Código/ejeRcicios")
+library(leaflet)
+
+```
+
+
+# Ejemplo de lectura
+
+> Lectura de CSV y TXT
+
+```{r Librerías para lectura 2}
+
+# Revisar la forma de separación de valores así como la codificación del archivo.
+
+doc_csv <- read.csv("RNPEDFC.csv", 
+                    sep=",",
+                    dec= ".", 
+                    header = TRUE,
+                    encoding = "UTF-8" )
+  
+
+head(doc_csv)
+```
+
+> Lectura de Exel
+
+```{r Excel}
+library(readxl)  # Permite leer documentos en Excel
+
+# Revisar si es excel .xls o xlsx
+
+doc_xls <- read_excel("RNPEDFC.xlsx")
+
+head(doc_xls)
+
+```
+
+> Lectura de Dbf
+
+```{r DBF}
+
+library (foreign) # Para leer archivos tipo dbf
+
+doc_dbf <- read.dbf("RNPEDFC.dbf", as.is = FALSE)
+
+head(doc_dbf)
+
+```
+
+> Lectura de Geojson
+
+```{r Geojson}
+
+library(rgdal)  # Para datos espaciales como Shapefile, geojson o geopackage
+doc_geojson <-readOGR(dsn = "R_geojson.geojson", layer= "R_geojson")
+
+
+leaflet(doc_geojson) %>% addTiles() %>% addPolygons()
+
+
+```
+
+
+> Lectura de Shapefile
+
+```{r Shp}
+
+library(rgdal)  # Para datos espaciales como Shapefile, geojson o geopackage
+doc_shp <-readOGR(dsn = ".", layer= "R_shp")
+
+
+leaflet(doc_shp) %>% addTiles() %>% addPolygons()
+
+
+```
+
+> Lectura de Geopackage
+
+```{r GeoPck}
+
+library(rgdal)  # Para datos espaciales como Shapefile, geojson o geopackage
+
+doc_Geopack <- readOGR("R_geopck.gpkg", "R_geopck")
+
+leaflet(doc_Geopack) %>% addTiles() %>% addPolygons()
+```

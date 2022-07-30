@@ -1,0 +1,151 @@
+---
+title: "Sesión 6. ESDA"
+author: "Isaías Morales"
+date: "27 de noviembre de 2020"
+output: html_document
+---
+```{r setup, include=FALSE}
+#knitr::opts_chunk$set(include = T)
+knitr::opts_knit$set(root.dir = "E:/10 SSPM_database/01 Geodatabase/05_SESNSP")
+
+```
+
+# Cargar librerías
+
+> Todas las necesarias y cuidar los posibles conflictos.
+
+```{r}
+library(tidyverse)
+
+```
+
+
+# Cargar tablas o datos
+
+> Se cargan ambos tanto vítimas como CI.
+
+
+```{r Librerías para lectura 2}
+# SESNSP INCIDENCIA Y VÍCTIMAS ====
+sesnsp <- read.csv("IDM_NM_sep2020.csv", sep=",", header= T, encoding = "ANSI")
+glimpse(sesnsp)
+names(sesnsp)
+
+sesnsp_vic <- read.csv("IDVFC_NM_sep2020.csv", sep=",", header= T, encoding = "ANSI")
+glimpse(sesnsp_vic)
+names(sesnsp_vic)
+```
+
+> Preproceso
+
+```{r}
+# Sumar un año
+sesnsp <- sesnsp %>% mutate( total = rowSums( sesnsp[, c(10:21)], na.rm = T) ) %>% ## Para total anual
+  rename (anio =Año,Cve.Municipio = Cve..Municipio)
+
+sesnsp_vic <- sesnsp_vic %>% mutate( total = rowSums( sesnsp_vic[, c(10:21)]) ) %>% ## Para total anual
+  rename (anio =Año)
+names(sesnsp)
+names(sesnsp_vic)
+
+```
+
+# Funciones básicas de Tidyverse.
+
+> Filtro
+
+```{r}
+# Filtro
+head(sesnsp %>% filter(Clave_Ent == 22) )
+sesnsp <- sesnsp %>% filter(Clave_Ent == 22)  # Vamos a dejar el filtro para que sea menos pesado.
+
+```
+
+> Select
+
+```{r}
+# Seleccionar ciertas coumnas
+
+names(sesnsp)
+head (sesnsp %>% select(anio, Entidad,Tipo.de.delito, total ), 10)
+
+```
+
+> Renombrar columnas
+
+```{r}
+# Renombrar columnas
+head(sesnsp %>% rename(t_delito = Tipo.de.delito), 10) # rename(nuevo_nombre = variable_original)
+
+```
+
+> Mutate (mutar columnas)
+
+```{r}
+
+# Mutate Mutar columnas, pueden cambiarse de tipo o hacer cálculo de variables
+head(
+  
+  sesnsp_vic %>% mutate( total = rowSums( sesnsp_vic[, c(10:21)]) ),
+  
+  10) ## mutate ( nombre_nuevo = funcion(Syntaxis))
+
+```
+
+> Resumir
+
+```{r}
+# Agrupar por  y sumarizar (resumir)
+head(
+sesnsp %>% group_by(Cve.Municipio,Municipio) %>% # group_by(columnas_para_agrupar)
+              summarise( n()) # summarise(función a aplicar)
+  )
+```
+
+> Modificar en casos cuando..
+
+```{r}
+# Modificar en Casos cuando
+"22014 Querétaro, 22006 Corregidora, 22011 El Marqués"
+
+head(
+sesnsp %>% 
+  mutate (zona = case_when( Cve.Municipio %in% c(22014, 22006, 22011) ~ "Metropolitana" ,
+                             TRUE ~ "Otra") )
+  )
+
+```
+
+> Aumentar complejidad
+
+```{r}
+#  Consulta más compleja.
+
+sesnsp %>%  filter (Clave_Ent == 22, Subtipo.de.delito == "Homicidio doloso") %>%
+  group_by(anio) %>% 
+  summarise_at(vars(Enero:Diciembre), sum)
+
+```
+
+> Tercero
+
+```{r}
+sesnsp %>%  filter (Clave_Ent == 22, Subtipo.de.delito == "Homicidio doloso") %>%
+  group_by(anio) %>% 
+      summarise(sum(total))
+
+```
+
+> Final
+
+```{r}
+## Por municipio
+names(sesnsp)
+
+sesnsp %>%  filter (Clave_Ent == 22, Subtipo.de.delito == "Homicidio doloso", anio == 2020) %>%
+            group_by(Municipio) %>% 
+                    summarise_at(vars(Enero:Diciembre), sum) %>%
+                    arrange(Municipio)
+
+```
+

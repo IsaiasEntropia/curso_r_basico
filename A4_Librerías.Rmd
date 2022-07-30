@@ -1,0 +1,32 @@
+---
+title: "Sesión 4. Librearías"
+author: "Isaías Morales"
+date: "27 de noviembre de 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(include = T)
+
+```
+
+# Librerías
+
+> Son complementos o extensiones que conjuntan funciones que facilitan determinadas tareas.
+
+> install.packages("nombre", dependencies = T) 
+
+```{r if uno}
+
+# La instalación de librerías
+
+#  
+
+
+# Colocar el True ayuda a que se instalen complementos que son necesarios y no tenemos.
+
+## Uso de la librería
+
+library("etasFLP")
+library(tidyverse)
+```

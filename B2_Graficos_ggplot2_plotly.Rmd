@@ -1,0 +1,213 @@
+---
+title: "Sesión 10. Gráficos con ggplot y plotly"
+author: "Isaías Morales"
+date: "27 de noviembre de 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+#knitr::opts_chunk$set(include = T)
+knitr::opts_knit$set(root.dir = "E:/10 SSPM_database/01 Geodatabase/05_SESNSP")
+
+```
+
+# Cargar librerías
+
+> Todas las necesarias y cuidar los posibles conflictos.
+
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(plotly) 
+library(lubridate)
+```
+
+```{r}
+
+```
+
+
+```{r}
+
+## SESNSP INCIDENCIA Y VÍCTIMAS ==
+
+sesnsp_vic <- read.csv("IDVFC_NM_sep2020.csv", sep=",", header= T, encoding = "ANSI")
+glimpse(sesnsp_vic)
+names(sesnsp_vic)
+sesnsp_vic <- sesnsp_vic %>% mutate( total = rowSums( sesnsp_vic[, c(10:21)]) ) %>% rename (anio =Año) ## Para total anual
+  
+names(sesnsp_vic)
+
+glimpse(sesnsp_vic)
+
+# En la suma, si existen NA's no podrá realizarla.
+tot_edad <- sesnsp_vic %>% 
+                filter(Tipo.de.delito == "Homicidio") %>%
+                group_by(Rango.de.edad) %>%
+                summarise(total = sum(total, na.rm =T))
+
+```
+
+> Gráficas de R base.
+
+```{r}
+
+# Uno de barraspara cada categoría.
+barplot(tot_edad$total,
+        xlab=  "Rango de edades",
+        ylab= "Totales",
+        main="Distribución de edades por víctima",
+        names.arg=c("+ 18 años", "- 17 Años", "No Esp.", "No Id."),
+        col= "blue" )
+
+# Uno de caja y bigotes dividido por rangos.
+boxplot(formula = total ~ Rango.de.edad, data =  tot_edad,
+        main="Distribución de edades por víctima",
+        col="blue", 
+        horizontal = T)
+```
+
+> Ggplot2
+
+
+```{r}
+
+library(ggplot2)
+
+# Primera ggplot (Vacía)
+p <- ggplot(data=tot_edad, aes(x= Rango.de.edad, y=total, fill= Rango.de.edad ))
+p
+
+# Agregamos geometría + geom( )
+p <- ggplot(data=tot_edad, aes(x= Rango.de.edad, y=total, fill= Rango.de.edad )) +
+      geom_bar(stat="identity") 
+p
+
+#  Relleno de color manual (Cuidar que hay valores continuos y discretos)
+
+p <- p +   scale_fill_manual (values =c("#499099", "#72557d", "#EC4127", "#999999")) 
+p
+
+# Agregamos detalles a la gráfica
+
+p <- p +  scale_x_discrete(drop=F, name="Rango de edad") +
+          #scale_y_discrete(drop=F, name="Homicidios") +
+            theme(axis.text.y = element_text(face="bold", size=8) ,
+                  axis.text.x = element_text(face="bold", size=10) ,
+                  axis.title.x = element_text(size=14, face="bold"),
+                  axis.title.y = element_text(size=14, face="bold"),
+                  legend.position = "bottom",legend.direction = "horizontal") +
+            labs (fill = "Total: ")
+p
+```
+
+# Gráficas interactivas con Plotly
+
+> Plotly es una libreria más amplia, solo vamos a envolver ggplot en plotly.
+
+```{r}
+library(plotly) 
+library(lubridate) # Para datos tipo date.
+
+# Se envuelve la gráfica anterior en ggplotly
+
+ggplotly(p)
+
+```
+
+> Aumentando la complejidad
+
+```{r}
+# Preproceso de información.
+### Una gráfica de líneas
+
+glimpse(sesnsp_vic)
+tiempo <-  sesnsp_vic %>% filter(Clave_Ent ==22) %>%
+            select(Sexo,anio, Enero:Diciembre) %>% group_by( Sexo,anio)%>%
+            summarise_at(vars(Enero:Diciembre), sum) %>%
+            gather(key="mes", value="total",Enero:Diciembre) %>%
+            mutate (mes = case_when( mes == "Enero"      ~ 01,
+                                     mes == "Febrero"    ~ 02,
+                                     mes == "Marzo"      ~ 03,
+                                     mes == "Abril"      ~ 04,
+                                     mes == "Mayo"       ~ 05,
+                                     mes == "Junio"      ~ 06,
+                                     mes == "Julio"      ~ 07,
+                                     mes == "Agosto"     ~ 08,
+                                     mes == "Septiembre" ~ 09,
+                                     mes == "Octubre"    ~ 10,
+                                     mes == "Noviembre"  ~ 11,
+                                     mes == "Diciembre"  ~ 12 ),
+                    fecha = as.Date (paste( anio, "-", mes, "-01", sep=""))) %>%
+            select(fecha, Sexo, total)
+
+head(tiempo)
+
+```
+
+> Gráfica de líneas
+
+```{r}
+
+## Básica con el geom_line
+ggplot(tiempo, aes(x=fecha, y=total, fill=Sexo),  colour = "black") +
+  geom_line()
+
+
+# Por recuadro a agregar + facet_grid()
+ggplot(tiempo, aes(x=fecha, y=total, fill=Sexo),  colour = "black") +
+geom_line() + facet_grid(rows = vars(Sexo))
+
+
+```
+
+> Spagguetti
+
+```{r}
+# Código auxiiar para resaltar
+# spaguetti <-  tiempo %>%   mutate( highlight=ifelse(Sexo=="Mujer", "Mujer", ifelse( Sexo== "Hombre", "Hombre", "Otro"))) %>%arrange(highlight, fecha)
+
+
+ggplot(tiempo, aes(x=fecha, y=total, fill=Sexo,group= Sexo, 
+                      color=Sexo, size=Sexo)) +
+  geom_line() +
+scale_color_manual(values = c("lightgrey","#69b3a2","lightgrey")) +
+  scale_size_manual(values=c(0.8,0.8,0.8)) +
+  theme(legend.position="none") +
+  ggtitle("Víctimas de delitos")
+
+
+```
+
+> Áreas
+
+```{r}
+### Areas
+
+ggplot(tiempo, aes(x = fecha, y = total, group = Sexo)) +
+  geom_area(aes(fill = Sexo), position = "stack") +
+  labs(title = "Víctimas por sexo", x = "", y = "Conteo",
+       subtitle = "Para comenzar") +
+  scale_y_continuous()
+```
+
+> Dona
+
+```{r}
+dona <- sesnsp_vic %>% filter (Clave_Ent ==22)  %>% 
+                  select(Rango.de.edad,anio, total) %>% 
+                    group_by( Rango.de.edad)%>%
+                    summarise( total = sum(total, na.rm=T) ) %>%
+          mutate( porc = total / sum(total),
+                  acum = cumsum(porc),
+                  ymin = c(0, head(acum, n=-1)))
+  
+# Se hace la gráfica
+ggplot(dona, aes(ymax=acum, ymin=ymin, xmax=4, xmin=3, fill=Rango.de.edad)) +
+  geom_rect() +
+  coord_polar(theta="y") + # Try to remove that to understand how the chart is built initially
+  xlim(c(2, 4)) # Try to remove that to see how to make a pie chart
+
+```
+

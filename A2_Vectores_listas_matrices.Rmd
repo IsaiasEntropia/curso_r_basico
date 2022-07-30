@@ -1,0 +1,204 @@
+---
+title: "Sesión 1. Básicos"
+author: "Isaías Morales"
+date: "27 de noviembre de 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(include = T)
+
+```
+
+# Vector
+
+> Son secuencias de objetos de la misma clase atómica.
+
+```{r Vectores}
+c(1,2,3,4,5)   # Vector no asignado a variable.
+
+rch <- c(15, 23, 34,34, 45)   # Vector no asignado a variable.
+class(rch)
+
+```
+
+
+> Repeticiones y secuencias.
+
+```{r Seq}
+
+uno <- 5:10         ## Utilizando dos puntos  inicio : fin (aumenta de uno en uno)
+dos <- seq(5,10,2)  ## Secuencia   seq(inicio, fin, de cuántos aumenta)
+tres <- rep(5,10)   ## Repetir   rep(valor a repetir, veces)
+
+```
+
+> Ubicaciones en un vector
+
+```{r Ubicación  Vectores}
+
+participante <- c("Yuli", "Yo", "Diego", "Juan")
+participante
+participante[3]  # Con corchete simple se accede a la posición deseada
+  # participante[5] <- "Nuevo"   # Aceder a la ubicación y asignar dato
+  # participante
+edades <- c(30, 34, 36, 27, NA)
+  #names(edades) <- participante
+edades
+
+```
+
+```{r Crear vector}
+
+participante <- c(Yuli = 30,
+                  Yo = 34,
+                  Diego = 36,
+                  Juan = 27)
+participante
+participante[3]  # Con corchete simple se accede a la posición deseada
+participante["Yuli"]  # Un vector con nombres, se puede acceder con el nombre
+
+```
+
+> Operaciones con vectores.
+
+```{r op Vectores}
+
+Vector_uno <- c() # Realizar vector uno
+Vector_dos <- c() # Realizar vector dos
+
+# operaciones
+  
+  # +     Suma 
+  # -     Resta
+  # /     División
+  # *     Multiplicación
+  # ^     Exponente
+  # sqrt  Raiz cuadrada
+  
+length( Vector_uno) # Tamaño de vector
+
+  # Operadores lógicos
+
+  # <   Menor qué
+  # >   Mayor qué
+  # ==  Igual qué
+  # !=  No es igual que
+
+
+```
+
+
+
+# Matrices
+
+> Desde el punto de vista del lenguaje, una matriz es un vector con un atributo adicional: dim. Tienen renglones y columnas.
+
+```{r Matrices}
+
+mat_1 <- c(5:20)
+dim(mat_1) <- c( 4, 4)
+mat_1
+
+# Clase de objeti
+class(mat_1)
+# Dimensión
+dim(mat_1)
+```
+
+
+```{r Matrices 2}
+# Row fila
+# Column Columna
+
+m <- matrix(mat_1, nrow = 4, ncol = 4, byrow = TRUE) # Ordenar por fila
+m
+m <- matrix(mat_1, nrow = 4, ncol = 4, byrow = FALSE) # Ordenar por columna
+m
+
+```
+
+```{r Matrices 3}
+# Construir una matriz.
+
+Colonia <- c("San Pablo", "Carrillo", "Los Sauces", "No indica")
+Evento <- c( "Robo a Casa", "Robo a Negocio", "Homicidio")
+# Dimensión de la matriz son columnas eventos (3) y Colonias (4) es una matriz 3 x 4
+
+ejemplo <- c(1:12)
+ejemplo 
+
+# Dar forma a la matriz
+
+m <- matrix(ejemplo, 
+            nrow = 4, 
+            ncol = 3, 
+            byrow = TRUE) # Considerar los tamaños
+
+# Asignar nombres.
+rownames(m) <- Colonia
+colnames(m) <- Evento
+
+# Ver la matriz 
+m
+
+```
+
+> Acceder a valores
+
+```{r Matrices 4}
+
+#  Recordar  matriz[ fila, columna ]
+
+# Solo se obtiene la fila 2. Denuncias en Carrillo
+m [ 2, ] 
+
+# Solo se obtiene la Columna 1. Robos a casa habitación de todas las colonias
+m [ , 1 ]
+
+# Obtener valor de la fila 3 columna 2
+m [ 3,  2] 
+
+```
+
+> Con funciones rbind y cbind
+
+```{r Matrices 5}
+
+fila_1 <- seq(1,40, 5)
+fila_2 <- seq(31,70, 5)
+
+# cbind: cada vector es una columna
+m_2 <- cbind(fila_1, fila_2)  
+m_2
+
+# rbind: cada vector es una fila
+m_3 <- rbind(fila_1, fila_2)  
+m_3
+
+
+```
+
+
+# Data Frame
+
+> La apariencia de un data frame es la de una tabla y una forma de crearlos es mediante la función data.frame(). Son útiles ya que hay una buena cantidad de funciones para trabajar con ellos.
+
+```{r Matrices 6}
+# Como matriz
+m
+
+# Como data frame se sabe el tipo de datos de cada columna.
+
+df_m <- data.frame(m)
+df_m
+
+```
+
+```{r Matrices 7}
+# El operador $ (dollar) da acceso a las columnas
+
+df_m$Robo.a.Casa
+
+```
+

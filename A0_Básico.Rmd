@@ -1,0 +1,32 @@
+---
+title: "Sesión 1. Básicos"
+author: "Isaías Morales"
+date: "27 de noviembre de 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(include = T)
+
+```
+
+# Cálculos básicos
+
+> Operaciones matemáticas.
+
+```{r inicio2}
+
+# Suma 
+2 + 5
+
+# Resta
+10 - 7
+
+# Multiplicación
+9 * 4
+
+# División
+28/4
+
+```
+

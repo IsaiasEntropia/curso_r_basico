@@ -1,0 +1,153 @@
+---
+title: "Sesión 6. ESDA"
+author: "Isaías Morales"
+date: "27 de noviembre de 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+#knitr::opts_chunk$set(include = T)
+knitr::opts_knit$set(root.dir = "E:/10 SSPM_database/02 Código/ejeRcicios")
+
+```
+
+# Cargar librerías
+
+> Todas las necesarias y cuidar los posibles conflictos.
+
+```{r}
+library(leaflet)
+library(tidyverse)
+
+```
+
+
+# Cargar tablas o datos
+
+> 
+
+
+```{r Librerías para lectura 2}
+
+# Revisar la forma de separación de valores así como la codificación del archivo.
+
+doc_csv <- read.csv("RNPEDFC.csv", 
+                    sep=",",
+                    dec= ".", 
+                    header = TRUE,
+                    encoding = "UTF-8" )
+  
+```
+
+
+```{r }
+
+  corregir <- function(x){
+    if  ( x == "NO ESPECIFICADO") {x = 999}
+    else {x = x}
+    return(x)
+  } ### Discapacidad
+  
+  doc_csv <- doc_csv %>% 
+    mutate( Edad = as.character(Edad), 
+            Edad  = map_chr(Edad, corregir),
+            Edad = as.integer(Edad))
+  
+  # doc_csv$Edad
+  
+  #doc_csv <- doc_csv %>% 
+   # mutate( Edad = as.character(Edad), 
+    #        Edad = ifelse(Edad == "NO ESPECIFICADO", 999, Edad),
+     #       Edad = as.integer(Edad))
+
+```
+
+
+```{r}
+# Head despliega los primeros datos de la tabla
+head(doc_csv)
+
+# Glimpse es similar a head pero los pone transpuesto. Y nos indica la cantidaa de observaciones y de columnas. EL tipo de dato en lass columnas.
+glimpse(doc_csv)
+
+# str indica además el tipo de objeto
+str(doc_csv)
+
+# Summary 
+summary(doc_csv)
+
+```
+
+```{r}
+doc_csv <- doc_csv %>%
+    filter(Edad < 200)
+
+# Hist
+hist(doc_csv$Edad)
+
+
+# Calcular la media
+mean(doc_csv$Edad)
+
+# median
+  median(doc_csv$Edad)
+  
+# Varianza
+var(doc_csv$Edad)
+
+# Desviación estándar
+
+sd(doc_csv$Edad)
+
+
+```
+
+>En este apartado se destacan algunas funciones de R que se usan en el resto de este documento. Por ejemplo:
+    
+  sum() proporciona la suma de los elementos del argumento. Así, teniendo en cuenta que x <- (1, 3, 5), sum(x) daría el valor 9.
+  
+  cumsum() proporciona un vector con la suma acumulada del vector argumento, por ejemplo, cumsum(x) daría [1] 1 4 9
+  
+  rowSums() y colSums() suman, por filas y por columnas, respectivamente, los datos de una hoja de datos.
+  
+  prod() y cumprod() son el equivalente a sum() y cumsum() para el producto.
+  
+  sqrt() es la función raíz cuadrada.
+  
+  log() es la función logaritmo natural o neperiano.
+  
+  log10() es el logaritmo en base 10.
+  
+  exp() es la función exponencial.
+  
+  max() y min() proporcionan el máximo y el mínimo del argumento (habitualmente, un vector).
+  
+  sort() proporciona la ordenación de un vector de menor a mayor.
+>
+
+# Gráficas básicas
+
+```{r}
+# Intento 1
+plot(doc_csv$Sexo)
+  
+table(doc_csv$Sexo)
+    
+# Intento 2  
+plot(doc_csv$Sexo, main= "Distribución por sexo de desaparecidxs", 
+       ylim= c(0,30000))
+
+
+# Intento 3
+plot(doc_csv$Sexo, main= "Distribución por sexo de desaparecidxs", 
+     ylim= c(0,30000), col= c("red", "blue"))
+
+# Intento 4
+plot(doc_csv$Sexo, main= "Distribución por sexo de desaparecidxs", 
+     ylim= c(0,30000), col= c("red", "blue") )
+
+
+
+
+```
+

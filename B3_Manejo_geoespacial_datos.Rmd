@@ -1,0 +1,198 @@
+---
+title: "Sesión 6. ESDA"
+author: "Isaías Morales"
+date: "27 de noviembre de 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+#knitr::opts_chunk$set(include = T)
+knitr::opts_knit$set(root.dir = "E:/10 SSPM_database/02 Código/ejeRcicios")
+
+```
+
+# Librerías.
+
+> Básicas para crear, cargar o manipular datos espaciales.
+
+```{r Librerías para lectura}
+
+library(sf)
+library(sp)
+library(rgdal)
+library(tidyverse)
+library(rgeos)
+library(maptools)
+library(raster)
+library(leaflet) # Mapitas
+
+```
+
+> Hacer de cero un archivo espacial en R.
+
+```{r}
+# Leer un archivo solo con coordenadas
+coordatos <-read.csv("spatialexample.csv", sep=",", dec=".", header=T,
+                     stringsAsFactors = F)
+glimpse(coordatos)
+
+```
+
+# Objetos tipo 'sp' Spatial.
+> Para ellos utilizamos la librería sp
+
+```{r}
+## Crear una MED, en R le llaman Spatialdataframe: coords + datos
+
+sp_data <-SpatialPointsDataFrame(coordatos[,2:3], coordatos[, c(1,4) ] )
+str(sp_data)
+class(sp_data)
+# Podemos graficar
+plot(sp_data, 
+     main="Puntitos 1", 
+     col= "red", 
+     lwd=2,
+     pch = 6)
+
+```
+
+> Algunas funciones 'sp'
+
+```{r}
+
+coordinates(sp_data) # Se extraen las coordenadas
+proj4string(sp_data) # Se verifica la proyección
+crs(sp_data) <- "+proj=longlat" # Se asigna sistema coordenadas de referencia
+proj4string(sp_data) # Comprobamos
+sp_data  # Aquí también ha cambiado
+crs(sp_data) <- "+init=epsg:32614" # Se asigna proyección
+proj4string(sp_data) # Comprobamos
+sp_data  # Aquí también ha cambiado
+
+## Se tienen slots (espacios o cajones)
+sp_data@data      # Para ver los datos
+sp_data@coords    # Las coordenadas
+sp_data@bbox      # Ver el bbox (Boundarie box)
+
+```
+
+
+# Objetos tipo 'sf' (simple features)
+> Para tener mayor compatibilidad con el uso de Postgis
+
+```{r}
+# Para utilizar sus funciones se deben crear objetos de esta categoría
+
+sf_data <- st_as_sf(coordatos, coords = c("long", "lat"))  # Crear objeto sf
+str(sf_data) # Verificar campos
+sf_data$geometry  # No hay slots, pero tiene un campo de geometría.
+class(sf_data) # Qué objeto es en R
+st_crs(sf_data) # Se verifica la proyección
+st_crs(sf_data) <- 4326 # Se asigna sistema de coordenadas de referencia
+st_crs(sf_data) # Revisamos el cambio
+sf_data # Correr de nuevo
+
+```
+
+
+# ### Diferencia entre Reproyección y Transformación
+> ¿Primero el huevo o la gallina?
+
+```{r}
+
+# Tener coordenadas lat-long
+sf_data <- st_as_sf(coordatos, coords = c("long", "lat"))
+st_crs(sf_data) <- 4326 # Se asigna sistema de coordenadas
+sf_data # Coordenadas latlong proyección 4326 wgs84
+st_transform(sf_data, CRS("+init=epsg:32614")) # Coordenadas UTM (No se asignó)
+sf_data # hasta que se asinge no se modifica nada
+st_crs(sf_data) <- 32614 # Se asigna proyección via EPSG
+sf_data
+
+# Considerar que sige estando en grados, si se hacen mediciones estarán mal.
+
+```
+
+> Ejemplo de posibles errores
+
+```{r}
+# Tener coordenadas lat-long
+
+sf_data <- st_as_sf(coordatos, coords = c("long", "lat"))
+latlon_datos <-  sf_data
+st_crs(latlon_datos) <- 32614 # Se asigna sistema de coordenadas con proyección 32614
+
+utm_datos <- sf_data
+st_crs(utm_datos) <- 4326 # Se asigna proyección via EPSG
+utm_datos <- st_transform(utm_datos, CRS("+init=epsg:32614")) # Coordenadas UTM (No se asignó)
+```
+
+> Buffer UTM
+
+```{r}
+## BUfer UTM
+bufer_utm <- st_buffer(utm_datos, 500)
+bufer_utm
+#PLOt
+options(sf_max.plot=2)
+plot(bufer_utm$geometry)
+plot(utm_datos$geometry, add = TRUE, pch=3, col="red")
+
+# Pasamos ade coordenadas UTM a latlon -> luego asignamos proyección
+puntos_utm_transf<- st_transform(utm_datos, "+proj=longlat +datum=WGS84") # Coordenadas UTM (No se asignó)
+st_crs(puntos_utm_transf) <- 4326 # Se asigna proyección via EPSG
+bufer_utm_transf <- st_transform(bufer_utm, "+proj=longlat +datum=WGS84") # Coordenadas UTM (No se asignó)
+st_crs(bufer_utm_transf) <- 4326 # Se asigna proyección via EPSG
+
+# Resultado
+leaflet(bufer_utm_transf) %>% addPolygons(color ="black") %>% addTiles() %>%
+    addCircleMarkers(data = st_geometry(puntos_utm_transf),
+                     radius = 0.5 ,
+                     color = "green")
+
+
+
+```
+
+> Bufer lat long
+
+```{r}
+
+## BUfer latlong
+bufer_latlon <- st_buffer(latlon_datos, 500)
+options(sf_max.plot=2)
+plot(bufer_latlon$geometry)
+plot(latlon_datos$geometry, add = TRUE, pch=3, col="red")
+
+# Resultado
+leaflet(bufer_latlon) %>% addPolygons(color ="black") %>% addTiles() %>%
+  addCircleMarkers(data = st_geometry(latlon_datos),
+                   radius = 0.5 ,
+                   color = "green")
+
+### Buffer con grados aproximadaamente 0.002 grados son 500 mts
+bufer_latlon <- st_buffer(latlon_datos, 0.002)
+
+leaflet(bufer_latlon) %>% addPolygons(color ="black") %>% addTiles() %>%
+  addCircleMarkers(data = st_geometry(latlon_datos),
+                   radius = 0.5 ,
+                   color = "green")
+
+```
+
+
+
+> Escribir un objeto espacial. (Exportar, guardar...)
+
+```{r}
+### Escribir
+
+#writeOGR( "Objeto de R tipo Dataframe espacial",
+#          dns= "si va a crear nueva carpeta",
+#          layer = "Nombre de la capa", 
+#          driver = "ESRI Shapefile", # El tipo de archivo geopackage, gejson
+#          overwrite_layer = TRUE) # La última línea es cuando ya existe uno previo
+
+```
+
+
